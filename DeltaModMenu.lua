@@ -1,5 +1,5 @@
 --[[ Delta Mod Menu Completo
-     Fly, WalkSpeed, Trail server-side, Linked Sword, Conferma chiusura
+     Fly, WalkSpeed, Trail server-side, Linked Sword con script, Conferma chiusura
      Menu trascinabile e toggle 3 linee
 --]]
 
@@ -9,7 +9,7 @@ local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Crea RemoteEvent per il trail
+-- Crea RemoteEvent per il trail (server-side)
 local createTrailEvent = ReplicatedStorage:FindFirstChild("CreateTrail")
 if not createTrailEvent then
     createTrailEvent = Instance.new("RemoteEvent")
@@ -17,7 +17,7 @@ if not createTrailEvent then
     createTrailEvent.Parent = ReplicatedStorage
 end
 
--- Server-side handler (mettere in LocalScript non funziona per gli altri)
+-- Server-side handler per la trail
 if not RunService:IsClient() then
     createTrailEvent.OnServerEvent:Connect(function(player)
         local char = player.Character
@@ -60,8 +60,8 @@ OpenBtn.Font = Enum.Font.SourceSansBold
 OpenBtn.TextSize = 28
 
 local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0,200,0,300)
-Frame.Position = UDim2.new(0.5,-100,0.5,-150)
+Frame.Size = UDim2.new(0,200,0,330)
+Frame.Position = UDim2.new(0.5,-100,0.5,-165)
 Frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
 Frame.Active = true
 Frame.Draggable = true
@@ -194,7 +194,7 @@ TrailBtn.MouseButton1Click:Connect(function()
     createTrailEvent:FireServer()
 end)
 
--- Linked Sword toggle
+-- Linked Sword toggle con script interno funzionante
 local swordGiven = false
 local SwordBtn = Instance.new("TextButton", Frame)
 SwordBtn.Size = UDim2.new(1,-20,0,30)
@@ -215,13 +215,13 @@ SwordBtn.MouseButton1Click:Connect(function()
         swordGiven = false
         print("Linked Sword rimossa!")
     else
-        local sword = game:GetObjects("rbxassetid://125013769")[1]
-        if sword then
-            sword.Parent = LocalPlayer.Backpack
-            swordGiven = true
-            print("Linked Sword aggiunta al backpack!")
-        else
-            warn("Errore nel caricare la Linked Sword")
+        local swords = game:GetObjects("rbxassetid://125013769") -- ID spada completa con script
+        for _, sword in pairs(swords) do
+            if sword:IsA("Tool") then
+                sword.Parent = LocalPlayer.Backpack
+                swordGiven = true
+                print("Linked Sword aggiunta con script funzionante!")
+            end
         end
     end
 end)
