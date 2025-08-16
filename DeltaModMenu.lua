@@ -1,4 +1,4 @@
--- Delta Mod Menu Completo
+-- Delta Mod Menu Completo con Sword integrata
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -190,19 +190,54 @@ TrailBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Sword toggle dal repo Git
+-- Sword integrata
+local swordGiven = false
 local SwordBtn = Instance.new("TextButton", Frame)
 SwordBtn.Size = UDim2.new(1,-20,0,30)
 SwordBtn.Position = UDim2.new(0,10,0,190)
 SwordBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-SwordBtn.Text = "Give Sword"
+SwordBtn.Text = "Toggle Sword"
 SwordBtn.TextColor3 = Color3.fromRGB(255,255,255)
 SwordBtn.Font = Enum.Font.SourceSans
 SwordBtn.TextSize = 18
 
+local swordTool
+
 SwordBtn.MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/vale-coder/DeltaModMenu/main/SwordTool.lua"))()
-    print("Sword caricata!")
+    if swordGiven then
+        if swordTool then swordTool:Destroy() end
+        swordGiven = false
+        print("Sword rimossa!")
+    else
+        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        swordTool = Instance.new("Tool")
+        swordTool.Name = "DeltaSword"
+        swordTool.RequiresHandle = true
+        swordTool.CanBeDropped = true
+
+        local handle = Instance.new("Part")
+        handle.Name = "Handle"
+        handle.Size = Vector3.new(1,4,1)
+        handle.Color = Color3.fromRGB(255,0,0)
+        handle.Material = Enum.Material.Neon
+        handle.Anchored = false
+        handle.CanCollide = false
+        handle.Parent = swordTool
+
+        swordTool.Parent = LocalPlayer.Backpack
+
+        local damage = 25
+        handle.Touched:Connect(function(hit)
+            local hum = hit.Parent:FindFirstChildOfClass("Humanoid")
+            if hum and hit.Parent ~= char then
+                hum:TakeDamage(damage)
+                print("Hit! Danno:", damage)
+            end
+        end)
+
+        swordGiven = true
+        print("DeltaSword aggiunta al backpack!")
+    end
 end)
 
 -- Conferma chiusura
