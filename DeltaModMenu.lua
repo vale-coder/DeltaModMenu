@@ -1,4 +1,5 @@
--- Delta Mod Menu compatto con Fly, WalkSpeed, Trail, Sword, Conferma Chiusura, Drag
+-- Delta Mod Menu Completo
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
@@ -6,7 +7,7 @@ local RunService = game:GetService("RunService")
 
 -- GUI
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-ScreenGui.Name = "DeltaModCompact"
+ScreenGui.Name = "DeltaModMenu"
 
 -- 3 linee bottone per aprire
 local OpenBtn = Instance.new("TextButton", ScreenGui)
@@ -200,7 +201,7 @@ SwordBtn.Font = Enum.Font.SourceSans
 SwordBtn.TextSize = 18
 
 SwordBtn.MouseButton1Click:Connect(function()
-    local swordScript = loadstring(game:HttpGet("https://raw.githubusercontent.com/vale-coder/YourRepo/main/SwordTool.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/vale-coder/DeltaModMenu/main/SwordTool.lua"))()
     print("Sword caricata!")
 end)
 
