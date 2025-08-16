@@ -1,4 +1,4 @@
--- Delta Mod Menu compatto con Fly + WalkSpeed + Trails + Conferma Chiusura + 3 linee
+-- Delta Mod Menu compatto con Fly + WalkSpeed + Trails + Debug + Conferma Chiusura + 3 linee
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
@@ -20,8 +20,8 @@ OpenBtn.TextSize = 28
 
 -- Frame principale
 local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0,200,0,200)
-Frame.Position = UDim2.new(0.5,-100,0.5,-100)
+Frame.Size = UDim2.new(0,200,0,230)
+Frame.Position = UDim2.new(0.5,-100,0.5,-115)
 Frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
 Frame.Active = true
 Frame.Draggable = true
@@ -137,12 +137,15 @@ SpeedBox.FocusLost:Connect(function(enter)
         local val = tonumber(SpeedBox.Text)
         if humanoid and val then
             humanoid.WalkSpeed = val
+            print("WalkSpeed impostata a:", val)
+        else
+            warn("Valore WalkSpeed non valido o humanoid non trovato")
         end
         SpeedBox.Visible = false
     end
 end)
 
--- Trails
+-- Trails con debug
 local TrailBtn = Instance.new("TextButton", Frame)
 TrailBtn.Size = UDim2.new(1,-20,0,30)
 TrailBtn.Position = UDim2.new(0,10,0,150)
@@ -154,14 +157,23 @@ TrailBtn.TextSize = 18
 
 TrailBtn.MouseButton1Click:Connect(function()
     local char = LocalPlayer.Character
-    if not char then return end
+    if not char then
+        warn("Character non trovato!")
+        return
+    end
+
     local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
+    if not hrp then
+        warn("HumanoidRootPart non trovato!")
+        return
+    end
+
+    print("Creazione Trail in corso...")
 
     local attach0 = Instance.new("Attachment", hrp)
     attach0.Position = Vector3.new(0,0,0)
     local attach1 = Instance.new("Attachment", hrp)
-    attach1.Position = Vector3.new(0,0,0)
+    attach1.Position = Vector3.new(0,2,0) -- leggermente sopra per visibilità
 
     local trail = Instance.new("Trail")
     trail.Attachment0 = attach0
@@ -169,7 +181,10 @@ TrailBtn.MouseButton1Click:Connect(function()
     trail.Lifetime = 0.5
     trail.Color = ColorSequence.new(Color3.fromRGB(255,0,0), Color3.fromRGB(255,255,0))
     trail.Transparency = NumberSequence.new(0,1)
+    trail.MinLength = 0.2
     trail.Parent = hrp
+
+    print("Trail creata correttamente!")
 end)
 
 -- Conferma chiusura
