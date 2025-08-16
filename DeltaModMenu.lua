@@ -1,4 +1,4 @@
--- Delta Mod Menu Completo con Classic Sword
+-- Delta Mod Menu Completo con Classic Sword funzionante
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -190,14 +190,14 @@ TrailBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Sword toggle usando Classic Sword Asset ID
+-- Classic Sword toggle
 local swordGiven = false
 local swordTool
 local SwordBtn = Instance.new("TextButton", Frame)
 SwordBtn.Size = UDim2.new(1,-20,0,30)
 SwordBtn.Position = UDim2.new(0,10,0,190)
 SwordBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-SwordBtn.Text = "Toggle Sword"
+SwordBtn.Text = "Toggle Classic Sword"
 SwordBtn.TextColor3 = Color3.fromRGB(255,255,255)
 SwordBtn.Font = Enum.Font.SourceSans
 SwordBtn.TextSize = 18
@@ -208,7 +208,7 @@ SwordBtn.MouseButton1Click:Connect(function()
     if swordGiven then
         if swordTool then swordTool:Destroy() end
         swordGiven = false
-        print("Sword rimossa!")
+        print("Classic Sword rimossa!")
     else
         local success, model = pcall(function()
             return game:GetObjects("rbxassetid://"..swordAssetId)[1]
@@ -218,7 +218,7 @@ SwordBtn.MouseButton1Click:Connect(function()
             swordTool = model
             swordTool.Parent = LocalPlayer.Backpack
             swordGiven = true
-            print("Classic Sword aggiunta al backpack!")
+            print("Classic Sword aggiunta al backpack con script funzionanti!")
         else
             warn("Errore nel caricare Classic Sword dall'Asset ID")
         end
