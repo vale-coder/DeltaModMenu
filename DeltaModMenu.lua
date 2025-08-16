@@ -1,4 +1,4 @@
--- Delta Mod Menu compatto con Fly + WalkSpeed + Trails + Debug + Conferma Chiusura + 3 linee
+-- Delta Mod Menu compatto con Fly + WalkSpeed + Trail toggle + Conferma Chiusura + 3 linee
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
@@ -145,15 +145,18 @@ SpeedBox.FocusLost:Connect(function(enter)
     end
 end)
 
--- Trails con debug
+-- Trails toggle con debug
 local TrailBtn = Instance.new("TextButton", Frame)
 TrailBtn.Size = UDim2.new(1,-20,0,30)
 TrailBtn.Position = UDim2.new(0,10,0,150)
 TrailBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-TrailBtn.Text = "Aggiungi Trail"
+TrailBtn.Text = "Toggle Trail"
 TrailBtn.TextColor3 = Color3.fromRGB(255,255,255)
 TrailBtn.Font = Enum.Font.SourceSans
 TrailBtn.TextSize = 18
+
+local trailActive = false
+local currentTrail, attach0, attach1
 
 TrailBtn.MouseButton1Click:Connect(function()
     local char = LocalPlayer.Character
@@ -168,23 +171,32 @@ TrailBtn.MouseButton1Click:Connect(function()
         return
     end
 
-    print("Creazione Trail in corso...")
+    if trailActive then
+        if currentTrail then currentTrail:Destroy() end
+        if attach0 then attach0:Destroy() end
+        if attach1 then attach1:Destroy() end
+        trailActive = false
+        print("Trail rimossa!")
+    else
+        print("Creazione Trail in corso...")
 
-    local attach0 = Instance.new("Attachment", hrp)
-    attach0.Position = Vector3.new(0,0,0)
-    local attach1 = Instance.new("Attachment", hrp)
-    attach1.Position = Vector3.new(0,2,0) -- leggermente sopra per visibilità
+        attach0 = Instance.new("Attachment", hrp)
+        attach0.Position = Vector3.new(0,0,0)
+        attach1 = Instance.new("Attachment", hrp)
+        attach1.Position = Vector3.new(0,2,0)
 
-    local trail = Instance.new("Trail")
-    trail.Attachment0 = attach0
-    trail.Attachment1 = attach1
-    trail.Lifetime = 0.5
-    trail.Color = ColorSequence.new(Color3.fromRGB(255,0,0), Color3.fromRGB(255,255,0))
-    trail.Transparency = NumberSequence.new(0,1)
-    trail.MinLength = 0.2
-    trail.Parent = hrp
+        currentTrail = Instance.new("Trail")
+        currentTrail.Attachment0 = attach0
+        currentTrail.Attachment1 = attach1
+        currentTrail.Lifetime = 0.5
+        currentTrail.Color = ColorSequence.new(Color3.fromRGB(255,0,0), Color3.fromRGB(255,255,0))
+        currentTrail.Transparency = NumberSequence.new(0,1)
+        currentTrail.MinLength = 0.2
+        currentTrail.Parent = hrp
 
-    print("Trail creata correttamente!")
+        trailActive = true
+        print("Trail creata correttamente!")
+    end
 end)
 
 -- Conferma chiusura
