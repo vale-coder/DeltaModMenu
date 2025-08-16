@@ -1,4 +1,4 @@
--- Delta Mod Menu Fly + Speed Toggle 3-step (LocalScript)
+-- Delta Mod Menu Fly + WalkSpeed (LocalScript)
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
@@ -55,10 +55,10 @@ UIS.InputBegan:Connect(function(input)
     end
 end)
 
+-- ======================
 -- Fly toggle
 local flying = false
-local speed = 70
-local defaultSpeed = 70
+local flySpeed = 70
 local bv, bg
 
 local function startFly()
@@ -85,7 +85,7 @@ local function startFly()
             if UIS:IsKeyDown(Enum.KeyCode.D) then move = move + camCF.RightVector end
             if UIS:IsKeyDown(Enum.KeyCode.Space) then move = move + Vector3.new(0,1,0) end
             if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then move = move - Vector3.new(0,1,0) end
-            bv.Velocity = move * speed
+            bv.Velocity = move * flySpeed
             bg.CFrame = camCF
         end
     end)
@@ -109,7 +109,10 @@ FlyBtn.MouseButton1Click:Connect(function()
     if flying then stopFly() else startFly() end
 end)
 
--- Speed button + textbox (3-step toggle)
+-- ======================
+-- WalkSpeed button + TextBox (3-step toggle)
+local defaultSpeed = 16
+local speedStep = 1 -- 1 = mostra textbox, 2 = velocità normale, 3 = mostra textbox di nuovo
 local SpeedBtn = Instance.new("TextButton", Frame)
 SpeedBtn.Size = UDim2.new(1,-20,0,30)
 SpeedBtn.Position = UDim2.new(0,10,0,80)
@@ -129,13 +132,15 @@ SpeedBox.TextSize = 18
 SpeedBox.PlaceholderText = "Scrivi velocità e premi Invio"
 SpeedBox.Visible = false
 
-local speedStep = 1 -- 1 = mostra textbox, 2 = velocità normale, 3 = mostra textbox di nuovo
-
 SpeedBtn.MouseButton1Click:Connect(function()
+    local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
+
     if speedStep == 1 or speedStep == 3 then
         SpeedBox.Visible = true
+        SpeedBox.Text = tostring(humanoid.WalkSpeed)
     elseif speedStep == 2 then
-        speed = defaultSpeed
+        humanoid.WalkSpeed = defaultSpeed
         SpeedBox.Visible = false
     end
     speedStep = speedStep % 3 + 1
@@ -143,9 +148,12 @@ end)
 
 SpeedBox.FocusLost:Connect(function(enterPressed)
     if enterPressed then
-        local newSpeed = tonumber(SpeedBox.Text)
-        if newSpeed then
-            speed = newSpeed
+        local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            local newSpeed = tonumber(SpeedBox.Text)
+            if newSpeed then
+                humanoid.WalkSpeed = newSpeed
+            end
         end
         SpeedBox.Visible = false
     end
