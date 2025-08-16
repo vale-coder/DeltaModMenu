@@ -203,7 +203,7 @@ SwordBtn.TextColor3 = Color3.fromRGB(255,255,255)
 SwordBtn.Font = Enum.Font.SourceSans
 SwordBtn.TextSize = 18
 
-local swordAssetId = 99490102114119
+local swordAssetId = 101964769489202
 
 SwordBtn.MouseButton1Click:Connect(function()
     if swordGiven then
@@ -270,4 +270,5 @@ end)
 OpenBtn.MouseButton1Click:Connect(function()
     Frame.Visible = not Frame.Visible
 end)
+
 
