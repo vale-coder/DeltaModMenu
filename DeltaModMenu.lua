@@ -1,4 +1,4 @@
--- Delta Mod Menu Fly + WalkSpeed (LocalScript)
+-- Delta Mod Menu Fly + WalkSpeed Toggle (LocalScript)
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
@@ -56,7 +56,7 @@ UIS.InputBegan:Connect(function(input)
 end)
 
 -- ======================
--- Fly toggle
+-- Fly toggle (solo Fly)
 local flying = false
 local flySpeed = 70
 local bv, bg
@@ -110,7 +110,7 @@ FlyBtn.MouseButton1Click:Connect(function()
 end)
 
 -- ======================
--- WalkSpeed button + TextBox (3-step toggle)
+-- WalkSpeed button + TextBox (solo camminata)
 local defaultSpeed = 16
 local speedStep = 1 -- 1 = mostra textbox, 2 = velocità normale, 3 = mostra textbox di nuovo
 local SpeedBtn = Instance.new("TextButton", Frame)
@@ -129,7 +129,7 @@ SpeedBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
 SpeedBox.TextColor3 = Color3.fromRGB(255,255,255)
 SpeedBox.Font = Enum.Font.SourceSans
 SpeedBox.TextSize = 18
-SpeedBox.PlaceholderText = "Scrivi velocità e premi Invio"
+SpeedBox.PlaceholderText = "Scrivi WalkSpeed e premi Invio"
 SpeedBox.Visible = false
 
 SpeedBtn.MouseButton1Click:Connect(function()
