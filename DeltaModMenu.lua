@@ -1,4 +1,4 @@
--- Delta Mod Menu compatto con Fly + WalkSpeed + Trail toggle + Conferma Chiusura + 3 linee
+-- Delta Mod Menu compatto con Fly, WalkSpeed, Trail, Sword, Conferma Chiusura, Drag
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
@@ -20,8 +20,8 @@ OpenBtn.TextSize = 28
 
 -- Frame principale
 local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0,200,0,230)
-Frame.Position = UDim2.new(0.5,-100,0.5,-115)
+Frame.Size = UDim2.new(0,200,0,260)
+Frame.Position = UDim2.new(0.5,-100,0.5,-130)
 Frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
 Frame.Active = true
 Frame.Draggable = true
@@ -106,8 +106,7 @@ FlyBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- WalkSpeed personalizzabile
-local defaultSpeed = 16
+-- WalkSpeed
 local SpeedBtn = Instance.new("TextButton", Frame)
 SpeedBtn.Size = UDim2.new(1,-20,0,30)
 SpeedBtn.Position = UDim2.new(0,10,0,80)
@@ -145,7 +144,7 @@ SpeedBox.FocusLost:Connect(function(enter)
     end
 end)
 
--- Trails toggle con debug
+-- Trail toggle
 local TrailBtn = Instance.new("TextButton", Frame)
 TrailBtn.Size = UDim2.new(1,-20,0,30)
 TrailBtn.Position = UDim2.new(0,10,0,150)
@@ -160,16 +159,9 @@ local currentTrail, attach0, attach1
 
 TrailBtn.MouseButton1Click:Connect(function()
     local char = LocalPlayer.Character
-    if not char then
-        warn("Character non trovato!")
-        return
-    end
-
+    if not char then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then
-        warn("HumanoidRootPart non trovato!")
-        return
-    end
+    if not hrp then return end
 
     if trailActive then
         if currentTrail then currentTrail:Destroy() end
@@ -178,8 +170,6 @@ TrailBtn.MouseButton1Click:Connect(function()
         trailActive = false
         print("Trail rimossa!")
     else
-        print("Creazione Trail in corso...")
-
         attach0 = Instance.new("Attachment", hrp)
         attach0.Position = Vector3.new(0,0,0)
         attach1 = Instance.new("Attachment", hrp)
@@ -195,8 +185,23 @@ TrailBtn.MouseButton1Click:Connect(function()
         currentTrail.Parent = hrp
 
         trailActive = true
-        print("Trail creata correttamente!")
+        print("Trail creata!")
     end
+end)
+
+-- Sword toggle dal repo Git
+local SwordBtn = Instance.new("TextButton", Frame)
+SwordBtn.Size = UDim2.new(1,-20,0,30)
+SwordBtn.Position = UDim2.new(0,10,0,190)
+SwordBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+SwordBtn.Text = "Give Sword"
+SwordBtn.TextColor3 = Color3.fromRGB(255,255,255)
+SwordBtn.Font = Enum.Font.SourceSans
+SwordBtn.TextSize = 18
+
+SwordBtn.MouseButton1Click:Connect(function()
+    local swordScript = loadstring(game:HttpGet("https://raw.githubusercontent.com/vale-coder/YourRepo/main/SwordTool.lua"))()
+    print("Sword caricata!")
 end)
 
 -- Conferma chiusura
