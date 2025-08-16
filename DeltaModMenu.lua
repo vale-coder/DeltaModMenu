@@ -1,4 +1,4 @@
--- Delta Mod Menu compatto Fly + WalkSpeed + Confirm Close + 3 linee
+-- Delta Mod Menu compatto con Fly + WalkSpeed + Trails + Conferma Chiusura + 3 linee
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
@@ -20,8 +20,8 @@ OpenBtn.TextSize = 28
 
 -- Frame principale
 local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0,200,0,150)
-Frame.Position = UDim2.new(0.5,-100,0.5,-75)
+Frame.Size = UDim2.new(0,200,0,200)
+Frame.Position = UDim2.new(0.5,-100,0.5,-100)
 Frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
 Frame.Active = true
 Frame.Draggable = true
@@ -140,6 +140,36 @@ SpeedBox.FocusLost:Connect(function(enter)
         end
         SpeedBox.Visible = false
     end
+end)
+
+-- Trails
+local TrailBtn = Instance.new("TextButton", Frame)
+TrailBtn.Size = UDim2.new(1,-20,0,30)
+TrailBtn.Position = UDim2.new(0,10,0,150)
+TrailBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+TrailBtn.Text = "Aggiungi Trail"
+TrailBtn.TextColor3 = Color3.fromRGB(255,255,255)
+TrailBtn.Font = Enum.Font.SourceSans
+TrailBtn.TextSize = 18
+
+TrailBtn.MouseButton1Click:Connect(function()
+    local char = LocalPlayer.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    local attach0 = Instance.new("Attachment", hrp)
+    attach0.Position = Vector3.new(0,0,0)
+    local attach1 = Instance.new("Attachment", hrp)
+    attach1.Position = Vector3.new(0,0,0)
+
+    local trail = Instance.new("Trail")
+    trail.Attachment0 = attach0
+    trail.Attachment1 = attach1
+    trail.Lifetime = 0.5
+    trail.Color = ColorSequence.new(Color3.fromRGB(255,0,0), Color3.fromRGB(255,255,0))
+    trail.Transparency = NumberSequence.new(0,1)
+    trail.Parent = hrp
 end)
 
 -- Conferma chiusura
