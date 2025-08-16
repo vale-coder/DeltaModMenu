@@ -1,4 +1,4 @@
--- Delta Mod Menu Completo con Classic Sword funzionante
+-- Delta Mod Menu Completo con Linked Sword
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -21,8 +21,8 @@ OpenBtn.TextSize = 28
 
 -- Frame principale
 local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0,200,0,260)
-Frame.Position = UDim2.new(0.5,-100,0.5,-130)
+Frame.Size = UDim2.new(0,200,0,300)
+Frame.Position = UDim2.new(0.5,-100,0.5,-150)
 Frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
 Frame.Active = true
 Frame.Draggable = true
@@ -190,37 +190,34 @@ TrailBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Classic Sword toggle
+-- Linked Sword toggle
 local swordGiven = false
-local swordTool
 local SwordBtn = Instance.new("TextButton", Frame)
 SwordBtn.Size = UDim2.new(1,-20,0,30)
 SwordBtn.Position = UDim2.new(0,10,0,190)
 SwordBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-SwordBtn.Text = "Toggle Classic Sword"
+SwordBtn.Text = "Toggle Linked Sword"
 SwordBtn.TextColor3 = Color3.fromRGB(255,255,255)
 SwordBtn.Font = Enum.Font.SourceSans
 SwordBtn.TextSize = 18
 
-local swordAssetId = 47433
-
 SwordBtn.MouseButton1Click:Connect(function()
     if swordGiven then
-        if swordTool then swordTool:Destroy() end
+        for _, tool in pairs(LocalPlayer.Backpack:GetChildren()) do
+            if tool:IsA("Tool") and tool.Name == "Linked Sword" then
+                tool:Destroy()
+            end
+        end
         swordGiven = false
-        print("Classic Sword rimossa!")
+        print("Linked Sword rimossa!")
     else
-        local success, model = pcall(function()
-            return game:GetObjects("rbxassetid://"..swordAssetId)[1]
-        end)
-
-        if success and model then
-            swordTool = model
-            swordTool.Parent = LocalPlayer.Backpack
+        local sword = game:GetObjects("rbxassetid://125013769")[1]
+        if sword then
+            sword.Parent = LocalPlayer.Backpack
             swordGiven = true
-            print("Classic Sword aggiunta al backpack con script funzionanti!")
+            print("Linked Sword aggiunta al backpack!")
         else
-            warn("Errore nel caricare Classic Sword dall'Asset ID")
+            warn("Errore nel caricare la Linked Sword")
         end
     end
 end)
