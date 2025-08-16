@@ -1,4 +1,4 @@
--- Delta Mod Menu Fly Only (LocalScript in StarterPlayerScripts)
+-- Delta Mod Menu Fly + Speed Toggle 3-step (LocalScript)
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
@@ -19,8 +19,8 @@ OpenBtn.Font = Enum.Font.SourceSansBold
 OpenBtn.TextSize = 28
 
 local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0,200,0,100)
-Frame.Position = UDim2.new(0.5,-100,0.5,-50)
+Frame.Size = UDim2.new(0,200,0,160)
+Frame.Position = UDim2.new(0.5,-100,0.5,-80)
 Frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
 Frame.Active = true
 Frame.Draggable = true
@@ -42,7 +42,6 @@ CloseBtn.Text = "X"
 CloseBtn.TextColor3 = Color3.fromRGB(255,255,255)
 CloseBtn.Font = Enum.Font.SourceSansBold
 CloseBtn.TextSize = 18
-
 CloseBtn.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
@@ -59,6 +58,7 @@ end)
 -- Fly toggle
 local flying = false
 local speed = 70
+local defaultSpeed = 70
 local bv, bg
 
 local function startFly()
@@ -107,4 +107,46 @@ FlyBtn.Font = Enum.Font.SourceSans
 FlyBtn.TextSize = 18
 FlyBtn.MouseButton1Click:Connect(function()
     if flying then stopFly() else startFly() end
+end)
+
+-- Speed button + textbox (3-step toggle)
+local SpeedBtn = Instance.new("TextButton", Frame)
+SpeedBtn.Size = UDim2.new(1,-20,0,30)
+SpeedBtn.Position = UDim2.new(0,10,0,80)
+SpeedBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+SpeedBtn.Text = "Speed"
+SpeedBtn.TextColor3 = Color3.fromRGB(255,255,255)
+SpeedBtn.Font = Enum.Font.SourceSans
+SpeedBtn.TextSize = 18
+
+local SpeedBox = Instance.new("TextBox", Frame)
+SpeedBox.Size = UDim2.new(1,-40,0,30)
+SpeedBox.Position = UDim2.new(0,10,0,120)
+SpeedBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
+SpeedBox.TextColor3 = Color3.fromRGB(255,255,255)
+SpeedBox.Font = Enum.Font.SourceSans
+SpeedBox.TextSize = 18
+SpeedBox.PlaceholderText = "Scrivi velocità e premi Invio"
+SpeedBox.Visible = false
+
+local speedStep = 1 -- 1 = mostra textbox, 2 = velocità normale, 3 = mostra textbox di nuovo
+
+SpeedBtn.MouseButton1Click:Connect(function()
+    if speedStep == 1 or speedStep == 3 then
+        SpeedBox.Visible = true
+    elseif speedStep == 2 then
+        speed = defaultSpeed
+        SpeedBox.Visible = false
+    end
+    speedStep = speedStep % 3 + 1
+end)
+
+SpeedBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        local newSpeed = tonumber(SpeedBox.Text)
+        if newSpeed then
+            speed = newSpeed
+        end
+        SpeedBox.Visible = false
+    end
 end)
