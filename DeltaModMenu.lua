@@ -1,4 +1,4 @@
--- Delta Mod Menu Fly + WalkSpeed Toggle (LocalScript)
+-- Delta Mod Menu Fly + WalkSpeed + Confirm Close (LocalScript)
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
@@ -43,13 +43,25 @@ CloseBtn.TextColor3 = Color3.fromRGB(255,255,255)
 CloseBtn.Font = Enum.Font.SourceSansBold
 CloseBtn.TextSize = 18
 CloseBtn.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
+    local confirm = Instance.new("TextButton", Frame)
+    confirm.Size = UDim2.new(1,-20,0,30)
+    confirm.Position = UDim2.new(0,10,0,50)
+    confirm.BackgroundColor3 = Color3.fromRGB(200,50,50)
+    confirm.TextColor3 = Color3.fromRGB(255,255,255)
+    confirm.Text = "Conferma chiusura"
+    confirm.Font = Enum.Font.SourceSansBold
+    confirm.TextSize = 16
+    confirm.MouseButton1Click:Connect(function()
+        ScreenGui:Destroy()
+    end)
+    delay(3, function()
+        if confirm and confirm.Parent then confirm:Destroy() end
+    end)
 end)
 
 OpenBtn.MouseButton1Click:Connect(function()
     Frame.Visible = not Frame.Visible
 end)
-
 UIS.InputBegan:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.M then
         Frame.Visible = not Frame.Visible
@@ -104,7 +116,7 @@ end
 
 local FlyBtn = Instance.new("TextButton", Frame)
 FlyBtn.Size = UDim2.new(1,-20,0,30)
-FlyBtn.Position = UDim2.new(0,10,0,40)
+FlyBtn.Position = UDim2.new(0,10,0,90)
 FlyBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
 FlyBtn.Text = "Toggle Fly"
 FlyBtn.TextColor3 = Color3.fromRGB(255,255,255)
@@ -119,12 +131,12 @@ FlyBtn.MouseButton1Click:Connect(function()
 end)
 
 -- ======================
--- WalkSpeed toggle (solo camminata normale)
+-- WalkSpeed toggle
 local defaultSpeed = 16
 local speedStep = 1
 local SpeedBtn = Instance.new("TextButton", Frame)
 SpeedBtn.Size = UDim2.new(1,-20,0,30)
-SpeedBtn.Position = UDim2.new(0,10,0,80)
+SpeedBtn.Position = UDim2.new(0,10,0,40)
 SpeedBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
 SpeedBtn.Text = "Speed"
 SpeedBtn.TextColor3 = Color3.fromRGB(255,255,255)
@@ -133,7 +145,7 @@ SpeedBtn.TextSize = 18
 
 local SpeedBox = Instance.new("TextBox", Frame)
 SpeedBox.Size = UDim2.new(1,-40,0,30)
-SpeedBox.Position = UDim2.new(0,10,0,120)
+SpeedBox.Position = UDim2.new(0,10,0,70)
 SpeedBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
 SpeedBox.TextColor3 = Color3.fromRGB(255,255,255)
 SpeedBox.Font = Enum.Font.SourceSans
