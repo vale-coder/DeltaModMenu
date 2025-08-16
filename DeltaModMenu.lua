@@ -29,7 +29,7 @@ Frame.Visible = false
 local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(1,0,0,30)
 Title.BackgroundColor3 = Color3.fromRGB(50,50,50)
-Title.Text = "Delta Fly Menu"
+Title.Text = "Delta Mod Menu"
 Title.TextColor3 = Color3.fromRGB(255,255,255)
 Title.Font = Enum.Font.SourceSansBold
 Title.TextSize = 18
@@ -49,6 +49,7 @@ end)
 OpenBtn.MouseButton1Click:Connect(function()
     Frame.Visible = not Frame.Visible
 end)
+
 UIS.InputBegan:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.M then
         Frame.Visible = not Frame.Visible
@@ -56,7 +57,7 @@ UIS.InputBegan:Connect(function(input)
 end)
 
 -- ======================
--- Fly toggle (solo Fly)
+-- Fly (solo volo)
 local flying = false
 local flySpeed = 70
 local bv, bg
@@ -66,16 +67,18 @@ local function startFly()
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
     local hrp = char.HumanoidRootPart
 
-    bv = Instance.new("BodyVelocity", hrp)
+    bv = Instance.new("BodyVelocity")
     bv.MaxForce = Vector3.new(1e5,1e5,1e5)
     bv.Velocity = Vector3.new(0,0,0)
+    bv.Parent = hrp
 
-    bg = Instance.new("BodyGyro", hrp)
+    bg = Instance.new("BodyGyro")
     bg.MaxTorque = Vector3.new(1e5,1e5,1e5)
     bg.CFrame = hrp.CFrame
+    bg.Parent = hrp
 
     flying = true
-    RunService.RenderStepped:Connect(function()
+    RunService:BindToRenderStep("FlyStep", 301, function()
         if flying and hrp then
             local camCF = workspace.CurrentCamera.CFrame
             local move = Vector3.new()
@@ -95,6 +98,7 @@ local function stopFly()
     flying = false
     if bv then bv:Destroy() end
     if bg then bg:Destroy() end
+    RunService:UnbindFromRenderStep("FlyStep")
 end
 
 local FlyBtn = Instance.new("TextButton", Frame)
@@ -110,9 +114,9 @@ FlyBtn.MouseButton1Click:Connect(function()
 end)
 
 -- ======================
--- WalkSpeed button + TextBox (solo camminata)
+-- WalkSpeed (solo camminata normale)
 local defaultSpeed = 16
-local speedStep = 1 -- 1 = mostra textbox, 2 = velocità normale, 3 = mostra textbox di nuovo
+local speedStep = 1
 local SpeedBtn = Instance.new("TextButton", Frame)
 SpeedBtn.Size = UDim2.new(1,-20,0,30)
 SpeedBtn.Position = UDim2.new(0,10,0,80)
