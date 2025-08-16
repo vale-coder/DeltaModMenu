@@ -1,37 +1,48 @@
--- Delta Mod Menu Fly + WalkSpeed + Confirm Close completo
+-- Delta Mod Menu compatto Fly + WalkSpeed + Confirm Close + 3 linee
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
--- GUI principale
+-- GUI
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-ScreenGui.Name = "DeltaModMenuFull"
+ScreenGui.Name = "DeltaModCompact"
 
+-- 3 linee bottone per aprire
+local OpenBtn = Instance.new("TextButton", ScreenGui)
+OpenBtn.Size = UDim2.new(0,40,0,40)
+OpenBtn.Position = UDim2.new(1,-50,1,-50)
+OpenBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+OpenBtn.Text = "☰"
+OpenBtn.TextColor3 = Color3.fromRGB(255,255,255)
+OpenBtn.Font = Enum.Font.SourceSansBold
+OpenBtn.TextSize = 28
+
+-- Frame principale
 local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0,300,0,200) -- grande quanto un mod menu normale
-Frame.Position = UDim2.new(0.5,-150,0.5,-100)
+Frame.Size = UDim2.new(0,200,0,150)
+Frame.Position = UDim2.new(0.5,-100,0.5,-75)
 Frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
 Frame.Active = true
 Frame.Draggable = true
+Frame.Visible = false
 
 local Title = Instance.new("TextLabel", Frame)
-Title.Size = UDim2.new(1,0,0,40)
+Title.Size = UDim2.new(1,0,0,30)
 Title.BackgroundColor3 = Color3.fromRGB(50,50,50)
 Title.Text = "Delta Mod Menu"
 Title.TextColor3 = Color3.fromRGB(255,255,255)
 Title.Font = Enum.Font.SourceSansBold
-Title.TextSize = 22
+Title.TextSize = 18
 
--- Bottone Chiudi
 local CloseBtn = Instance.new("TextButton", Frame)
-CloseBtn.Size = UDim2.new(0,40,0,40)
-CloseBtn.Position = UDim2.new(1,-50,0,0)
+CloseBtn.Size = UDim2.new(0,30,0,30)
+CloseBtn.Position = UDim2.new(1,-35,0,5)
 CloseBtn.BackgroundColor3 = Color3.fromRGB(150,50,50)
 CloseBtn.Text = "X"
 CloseBtn.TextColor3 = Color3.fromRGB(255,255,255)
 CloseBtn.Font = Enum.Font.SourceSansBold
-CloseBtn.TextSize = 20
+CloseBtn.TextSize = 18
 
 -- Fly
 local flying = false
@@ -39,13 +50,13 @@ local flySpeed = 70
 local bv, bg, flyConnection
 
 local FlyBtn = Instance.new("TextButton", Frame)
-FlyBtn.Size = UDim2.new(1,-40,0,40)
-FlyBtn.Position = UDim2.new(0,20,0,60)
+FlyBtn.Size = UDim2.new(1,-20,0,30)
+FlyBtn.Position = UDim2.new(0,10,0,40)
 FlyBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
 FlyBtn.Text = "Fly"
 FlyBtn.TextColor3 = Color3.fromRGB(255,255,255)
 FlyBtn.Font = Enum.Font.SourceSans
-FlyBtn.TextSize = 20
+FlyBtn.TextSize = 18
 
 local function startFly()
     local char = LocalPlayer.Character
@@ -95,21 +106,39 @@ FlyBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- WalkSpeed
+-- WalkSpeed personalizzabile
 local defaultSpeed = 16
 local SpeedBtn = Instance.new("TextButton", Frame)
-SpeedBtn.Size = UDim2.new(1,-40,0,40)
-SpeedBtn.Position = UDim2.new(0,20,0,120)
+SpeedBtn.Size = UDim2.new(1,-20,0,30)
+SpeedBtn.Position = UDim2.new(0,10,0,80)
 SpeedBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-SpeedBtn.Text = "WalkSpeed +20"
+SpeedBtn.Text = "Set WalkSpeed"
 SpeedBtn.TextColor3 = Color3.fromRGB(255,255,255)
 SpeedBtn.Font = Enum.Font.SourceSans
-SpeedBtn.TextSize = 20
+SpeedBtn.TextSize = 18
+
+local SpeedBox = Instance.new("TextBox", Frame)
+SpeedBox.Size = UDim2.new(1,-20,0,30)
+SpeedBox.Position = UDim2.new(0,10,0,115)
+SpeedBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
+SpeedBox.TextColor3 = Color3.fromRGB(255,255,255)
+SpeedBox.Font = Enum.Font.SourceSans
+SpeedBox.PlaceholderText = "Inserisci WalkSpeed"
+SpeedBox.ClearTextOnFocus = false
+SpeedBox.Visible = false
 
 SpeedBtn.MouseButton1Click:Connect(function()
-    local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid.WalkSpeed = defaultSpeed + 20
+    SpeedBox.Visible = not SpeedBox.Visible
+end)
+
+SpeedBox.FocusLost:Connect(function(enter)
+    if enter then
+        local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        local val = tonumber(SpeedBox.Text)
+        if humanoid and val then
+            humanoid.WalkSpeed = val
+        end
+        SpeedBox.Visible = false
     end
 end)
 
@@ -151,4 +180,9 @@ CloseBtn.MouseButton1Click:Connect(function()
     NoBtn.MouseButton1Click:Connect(function()
         confirmFrame:Destroy()
     end)
+end)
+
+-- Toggle frame con 3 linee
+OpenBtn.MouseButton1Click:Connect(function()
+    Frame.Visible = not Frame.Visible
 end)
