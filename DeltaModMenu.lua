@@ -1,9 +1,10 @@
--- Delta Mod Menu Completo con Sword FBX
+-- Delta Mod Menu Completo con Sword pubblica
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- GUI
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
@@ -190,10 +191,9 @@ TrailBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Sword toggle usando Sword.fbx
+-- Sword toggle usando Asset ID pubblico
 local swordGiven = false
 local swordTool
-
 local SwordBtn = Instance.new("TextButton", Frame)
 SwordBtn.Size = UDim2.new(1,-20,0,30)
 SwordBtn.Position = UDim2.new(0,10,0,190)
@@ -203,46 +203,25 @@ SwordBtn.TextColor3 = Color3.fromRGB(255,255,255)
 SwordBtn.Font = Enum.Font.SourceSans
 SwordBtn.TextSize = 18
 
+local swordAssetId = 113630489740058
+
 SwordBtn.MouseButton1Click:Connect(function()
     if swordGiven then
         if swordTool then swordTool:Destroy() end
         swordGiven = false
         print("Sword rimossa!")
     else
-        local fbxURL = "https://raw.githubusercontent.com/vale-coder/DeltaModMenu/main/Sword.fbx"
         local success, model = pcall(function()
-            return game:GetObjects(fbxURL)[1]
+            return game:GetObjects("rbxassetid://"..swordAssetId)[1]
         end)
 
         if success and model then
-            swordTool = Instance.new("Tool")
-            swordTool.Name = "DeltaSword"
-            swordTool.RequiresHandle = true
-            swordTool.CanBeDropped = true
-
-            local handle = model:FindFirstChildOfClass("Part") or model:FindFirstChildWhichIsA("MeshPart")
-            if handle then
-                handle.Parent = swordTool
-                handle.Name = "Handle"
-                handle.CanCollide = false
-                handle.Anchored = false
-            end
-
+            swordTool = model
             swordTool.Parent = LocalPlayer.Backpack
-
-            local damage = 25
-            handle.Touched:Connect(function(hit)
-                local hum = hit.Parent:FindFirstChildOfClass("Humanoid")
-                if hum and hit.Parent ~= LocalPlayer.Character then
-                    hum:TakeDamage(damage)
-                    print("Hit! Danno:", damage)
-                end
-            end)
-
             swordGiven = true
             print("DeltaSword aggiunta al backpack!")
         else
-            warn("Errore nel caricare Sword.fbx dal repo")
+            warn("Errore nel caricare Sword dall'Asset ID")
         end
     end
 end)
