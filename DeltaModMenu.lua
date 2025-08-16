@@ -1,15 +1,55 @@
--- Delta Mod Menu Completo con Linked Sword
+--[[ Delta Mod Menu Completo
+     Fly, WalkSpeed, Trail server-side, Linked Sword, Conferma chiusura
+     Menu trascinabile e toggle 3 linee
+--]]
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Crea RemoteEvent per il trail
+local createTrailEvent = ReplicatedStorage:FindFirstChild("CreateTrail")
+if not createTrailEvent then
+    createTrailEvent = Instance.new("RemoteEvent")
+    createTrailEvent.Name = "CreateTrail"
+    createTrailEvent.Parent = ReplicatedStorage
+end
+
+-- Server-side handler (mettere in LocalScript non funziona per gli altri)
+if not RunService:IsClient() then
+    createTrailEvent.OnServerEvent:Connect(function(player)
+        local char = player.Character
+        if not char then return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+
+        -- Rimuove trail precedente
+        for _, c in pairs(hrp:GetChildren()) do
+            if c:IsA("Trail") or c:IsA("Attachment") then c:Destroy() end
+        end
+
+        local attach0 = Instance.new("Attachment", hrp)
+        attach0.Position = Vector3.new(0,0,0)
+        local attach1 = Instance.new("Attachment", hrp)
+        attach1.Position = Vector3.new(0,2,0)
+
+        local trail = Instance.new("Trail")
+        trail.Attachment0 = attach0
+        trail.Attachment1 = attach1
+        trail.Lifetime = 0.5
+        trail.Color = ColorSequence.new(Color3.fromRGB(255,0,0), Color3.fromRGB(255,255,0))
+        trail.Transparency = NumberSequence.new(0,1)
+        trail.MinLength = 0.2
+        trail.Parent = hrp
+    end)
+end
 
 -- GUI
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 ScreenGui.Name = "DeltaModMenu"
 
--- 3 linee bottone per aprire
 local OpenBtn = Instance.new("TextButton", ScreenGui)
 OpenBtn.Size = UDim2.new(0,40,0,40)
 OpenBtn.Position = UDim2.new(1,-50,1,-50)
@@ -19,7 +59,6 @@ OpenBtn.TextColor3 = Color3.fromRGB(255,255,255)
 OpenBtn.Font = Enum.Font.SourceSansBold
 OpenBtn.TextSize = 28
 
--- Frame principale
 local Frame = Instance.new("Frame", ScreenGui)
 Frame.Size = UDim2.new(0,200,0,300)
 Frame.Position = UDim2.new(0.5,-100,0.5,-150)
@@ -100,11 +139,7 @@ local function stopFly()
 end
 
 FlyBtn.MouseButton1Click:Connect(function()
-    if flying then
-        stopFly()
-    else
-        startFly()
-    end
+    if flying then stopFly() else startFly() end
 end)
 
 -- WalkSpeed
@@ -155,39 +190,8 @@ TrailBtn.TextColor3 = Color3.fromRGB(255,255,255)
 TrailBtn.Font = Enum.Font.SourceSans
 TrailBtn.TextSize = 18
 
-local trailActive = false
-local currentTrail, attach0, attach1
-
 TrailBtn.MouseButton1Click:Connect(function()
-    local char = LocalPlayer.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-
-    if trailActive then
-        if currentTrail then currentTrail:Destroy() end
-        if attach0 then attach0:Destroy() end
-        if attach1 then attach1:Destroy() end
-        trailActive = false
-        print("Trail rimossa!")
-    else
-        attach0 = Instance.new("Attachment", hrp)
-        attach0.Position = Vector3.new(0,0,0)
-        attach1 = Instance.new("Attachment", hrp)
-        attach1.Position = Vector3.new(0,2,0)
-
-        currentTrail = Instance.new("Trail")
-        currentTrail.Attachment0 = attach0
-        currentTrail.Attachment1 = attach1
-        currentTrail.Lifetime = 0.5
-        currentTrail.Color = ColorSequence.new(Color3.fromRGB(255,0,0), Color3.fromRGB(255,255,0))
-        currentTrail.Transparency = NumberSequence.new(0,1)
-        currentTrail.MinLength = 0.2
-        currentTrail.Parent = hrp
-
-        trailActive = true
-        print("Trail creata!")
-    end
+    createTrailEvent:FireServer()
 end)
 
 -- Linked Sword toggle
