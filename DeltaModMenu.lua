@@ -1,10 +1,9 @@
--- Delta Mod Menu Completo con Sword pubblica
+-- Delta Mod Menu Completo con Classic Sword
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- GUI
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
@@ -191,7 +190,7 @@ TrailBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Sword toggle usando Asset ID pubblico
+-- Sword toggle usando Classic Sword Asset ID
 local swordGiven = false
 local swordTool
 local SwordBtn = Instance.new("TextButton", Frame)
@@ -219,9 +218,9 @@ SwordBtn.MouseButton1Click:Connect(function()
             swordTool = model
             swordTool.Parent = LocalPlayer.Backpack
             swordGiven = true
-            print("DeltaSword aggiunta al backpack!")
+            print("Classic Sword aggiunta al backpack!")
         else
-            warn("Errore nel caricare Sword dall'Asset ID")
+            warn("Errore nel caricare Classic Sword dall'Asset ID")
         end
     end
 end)
@@ -270,7 +269,3 @@ end)
 OpenBtn.MouseButton1Click:Connect(function()
     Frame.Visible = not Frame.Visible
 end)
-
-
-
-
