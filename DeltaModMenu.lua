@@ -57,10 +57,10 @@ UIS.InputBegan:Connect(function(input)
 end)
 
 -- ======================
--- Fly (solo volo)
+-- Fly toggle
 local flying = false
 local flySpeed = 70
-local bv, bg
+local bv, bg, flyConnection
 
 local function startFly()
     local char = LocalPlayer.Character
@@ -78,7 +78,8 @@ local function startFly()
     bg.Parent = hrp
 
     flying = true
-    RunService:BindToRenderStep("FlyStep", 301, function()
+
+    flyConnection = RunService.RenderStepped:Connect(function()
         if flying and hrp then
             local camCF = workspace.CurrentCamera.CFrame
             local move = Vector3.new()
@@ -98,7 +99,7 @@ local function stopFly()
     flying = false
     if bv then bv:Destroy() end
     if bg then bg:Destroy() end
-    RunService:UnbindFromRenderStep("FlyStep")
+    if flyConnection then flyConnection:Disconnect() end
 end
 
 local FlyBtn = Instance.new("TextButton", Frame)
@@ -110,11 +111,15 @@ FlyBtn.TextColor3 = Color3.fromRGB(255,255,255)
 FlyBtn.Font = Enum.Font.SourceSans
 FlyBtn.TextSize = 18
 FlyBtn.MouseButton1Click:Connect(function()
-    if flying then stopFly() else startFly() end
+    if flying then
+        stopFly()
+    else
+        startFly()
+    end
 end)
 
 -- ======================
--- WalkSpeed (solo camminata normale)
+-- WalkSpeed toggle (solo camminata normale)
 local defaultSpeed = 16
 local speedStep = 1
 local SpeedBtn = Instance.new("TextButton", Frame)
