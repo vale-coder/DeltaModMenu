@@ -1,272 +1,236 @@
---[[ Delta Mod Menu Completo
-     Fly, WalkSpeed, Trail server-side, Linked Sword con script, Conferma chiusura
-     Menu trascinabile e toggle 3 linee
---]]
-
+-- Delta Admin Panel definitivo con colori random, WalkSpeed e Goto Player dinamico
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 
--- Crea RemoteEvent per il trail (server-side)
-local createTrailEvent = ReplicatedStorage:FindFirstChild("CreateTrail")
-if not createTrailEvent then
-    createTrailEvent = Instance.new("RemoteEvent")
-    createTrailEvent.Name = "CreateTrail"
-    createTrailEvent.Parent = ReplicatedStorage
-end
-
--- Server-side handler per la trail
-if not RunService:IsClient() then
-    createTrailEvent.OnServerEvent:Connect(function(player)
-        local char = player.Character
-        if not char then return end
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-
-        -- Rimuove trail precedente
-        for _, c in pairs(hrp:GetChildren()) do
-            if c:IsA("Trail") or c:IsA("Attachment") then c:Destroy() end
-        end
-
-        local attach0 = Instance.new("Attachment", hrp)
-        attach0.Position = Vector3.new(0,0,0)
-        local attach1 = Instance.new("Attachment", hrp)
-        attach1.Position = Vector3.new(0,2,0)
-
-        local trail = Instance.new("Trail")
-        trail.Attachment0 = attach0
-        trail.Attachment1 = attach1
-        trail.Lifetime = 0.5
-        trail.Color = ColorSequence.new(Color3.fromRGB(255,0,0), Color3.fromRGB(255,255,0))
-        trail.Transparency = NumberSequence.new(0,1)
-        trail.MinLength = 0.2
-        trail.Parent = hrp
-    end)
-end
-
--- GUI
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-ScreenGui.Name = "DeltaModMenu"
-
-local OpenBtn = Instance.new("TextButton", ScreenGui)
-OpenBtn.Size = UDim2.new(0,40,0,40)
-OpenBtn.Position = UDim2.new(1,-50,1,-50)
-OpenBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
-OpenBtn.Text = "☰"
-OpenBtn.TextColor3 = Color3.fromRGB(255,255,255)
-OpenBtn.Font = Enum.Font.SourceSansBold
-OpenBtn.TextSize = 28
-
-local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0,200,0,330)
-Frame.Position = UDim2.new(0.5,-100,0.5,-165)
-Frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-Frame.Active = true
-Frame.Draggable = true
-Frame.Visible = false
-
-local Title = Instance.new("TextLabel", Frame)
-Title.Size = UDim2.new(1,0,0,30)
-Title.BackgroundColor3 = Color3.fromRGB(50,50,50)
-Title.Text = "Delta Mod Menu"
-Title.TextColor3 = Color3.fromRGB(255,255,255)
-Title.Font = Enum.Font.SourceSansBold
-Title.TextSize = 18
-
-local CloseBtn = Instance.new("TextButton", Frame)
-CloseBtn.Size = UDim2.new(0,30,0,30)
-CloseBtn.Position = UDim2.new(1,-35,0,5)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(150,50,50)
-CloseBtn.Text = "X"
-CloseBtn.TextColor3 = Color3.fromRGB(255,255,255)
-CloseBtn.Font = Enum.Font.SourceSansBold
-CloseBtn.TextSize = 18
-
--- Fly
 local flying = false
 local flySpeed = 70
 local bv, bg, flyConnection
 
-local FlyBtn = Instance.new("TextButton", Frame)
-FlyBtn.Size = UDim2.new(1,-20,0,30)
-FlyBtn.Position = UDim2.new(0,10,0,40)
-FlyBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-FlyBtn.Text = "Fly"
-FlyBtn.TextColor3 = Color3.fromRGB(255,255,255)
-FlyBtn.Font = Enum.Font.SourceSans
-FlyBtn.TextSize = 18
+-- Funzione colore random
+local function randomColor()
+	return Color3.fromRGB(math.random(0,255),math.random(0,255),math.random(0,255))
+end
 
+-- Genera tre colori diversi
+local flyColor, speedColor, gotoColor
+flyColor = randomColor()
+repeat speedColor = randomColor() until speedColor ~= flyColor
+repeat gotoColor = randomColor() until gotoColor ~= flyColor and gotoColor ~= speedColor
+
+-- GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "DeltaAdminWindow"
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 240) -- altezza aumentata per textbox
+frame.Position = UDim2.new(0, 0, 0, 230)
+frame.BackgroundColor3 = Color3.fromRGB(0,170,0)
+frame.Active = true
+frame.Visible = false
+frame.Parent = screenGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0,15)
+corner.Parent = frame
+
+-- Barra titolo
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1,0,0,30)
+titleBar.BackgroundColor3 = Color3.fromRGB(0,120,0)
+titleBar.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,-40,1,0)
+title.Position = UDim2.new(0,0,0,0)
+title.BackgroundTransparency = 1
+title.Text = "Admin Panel"
+title.TextColor3 = Color3.fromRGB(255,255,255)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 20
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = titleBar
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0,30,0,30)
+closeBtn.Position = UDim2.new(1,-30,0,0)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200,50,50)
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.fromRGB(255,255,255)
+closeBtn.Font = Enum.Font.SourceSansBold
+closeBtn.TextSize = 18
+closeBtn.Parent = titleBar
+
+closeBtn.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
+
+-- Fly button con colore random
+local flyBtn = Instance.new("TextButton")
+flyBtn.Size = UDim2.new(0.8,0,0,40)
+flyBtn.Position = UDim2.new(0.1,0,0,50)
+flyBtn.BackgroundColor3 = flyColor
+flyBtn.TextColor3 = Color3.fromRGB(255,255,255)
+flyBtn.Font = Enum.Font.SourceSansBold
+flyBtn.TextSize = 20
+flyBtn.Text = "Toggle Fly"
+flyBtn.Parent = frame
+
+-- WalkSpeed Button con colore random diverso
+local speedBtn = Instance.new("TextButton")
+speedBtn.Size = UDim2.new(0.8,0,0,40)
+speedBtn.Position = UDim2.new(0.1,0,0,100)
+speedBtn.BackgroundColor3 = speedColor
+speedBtn.TextColor3 = Color3.fromRGB(255,255,255)
+speedBtn.Font = Enum.Font.SourceSansBold
+speedBtn.TextSize = 20
+speedBtn.Text = "Set WalkSpeed"
+speedBtn.Parent = frame
+
+local speedBox = Instance.new("TextBox")
+speedBox.Size = UDim2.new(0.8,0,0,30)
+speedBox.Position = UDim2.new(0.1,0,0,145)
+speedBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
+speedBox.TextColor3 = Color3.fromRGB(255,255,255)
+speedBox.Font = Enum.Font.SourceSans
+speedBox.PlaceholderText = "Inserisci WalkSpeed"
+speedBox.ClearTextOnFocus = false
+speedBox.Visible = false
+speedBox.Parent = frame
+
+speedBtn.MouseButton1Click:Connect(function()
+	speedBox.Visible = not speedBox.Visible
+end)
+
+speedBox.FocusLost:Connect(function(enter)
+	if enter then
+		local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+		local val = tonumber(speedBox.Text)
+		if humanoid and val then
+			humanoid.WalkSpeed = val
+			print("[Debug] WalkSpeed impostata a:", val)
+		else
+			warn("[Debug] Valore WalkSpeed non valido o humanoid non trovato")
+		end
+		speedBox.Visible = false
+	end
+end)
+
+-- Funzioni Fly
 local function startFly()
-    local char = LocalPlayer.Character
-    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-    local hrp = char.HumanoidRootPart
+	local char = LocalPlayer.Character
+	if not char then return end
+	local hrp = char:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
 
-    bv = Instance.new("BodyVelocity")
-    bv.MaxForce = Vector3.new(1e5,1e5,1e5)
-    bv.Velocity = Vector3.new(0,0,0)
-    bv.Parent = hrp
+	bv = Instance.new("BodyVelocity")
+	bv.MaxForce = Vector3.new(1e5,1e5,1e5)
+	bv.Velocity = Vector3.new(0,0,0)
+	bv.Parent = hrp
 
-    bg = Instance.new("BodyGyro")
-    bg.MaxTorque = Vector3.new(1e5,1e5,1e5)
-    bg.CFrame = hrp.CFrame
-    bg.Parent = hrp
+	bg = Instance.new("BodyGyro")
+	bg.MaxTorque = Vector3.new(1e5,1e5,1e5)
+	bg.CFrame = hrp.CFrame
+	bg.Parent = hrp
 
-    flying = true
+	flying = true
 
-    flyConnection = RunService.RenderStepped:Connect(function()
-        if flying and hrp then
-            local camCF = workspace.CurrentCamera.CFrame
-            local move = Vector3.new()
-            if UIS:IsKeyDown(Enum.KeyCode.W) then move = move + camCF.LookVector end
-            if UIS:IsKeyDown(Enum.KeyCode.S) then move = move - camCF.LookVector end
-            if UIS:IsKeyDown(Enum.KeyCode.A) then move = move - camCF.RightVector end
-            if UIS:IsKeyDown(Enum.KeyCode.D) then move = move + camCF.RightVector end
-            if UIS:IsKeyDown(Enum.KeyCode.Space) then move = move + Vector3.new(0,1,0) end
-            if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then move = move - Vector3.new(0,1,0) end
-            bv.Velocity = move * flySpeed
-            bg.CFrame = camCF
-        end
-    end)
+	flyConnection = RunService.RenderStepped:Connect(function()
+		if not flying then return end
+		local camCF = workspace.CurrentCamera.CFrame
+		local move = Vector3.new()
+		if UserInputService:IsKeyDown(Enum.KeyCode.W) then move = move + camCF.LookVector end
+		if UserInputService:IsKeyDown(Enum.KeyCode.S) then move = move - camCF.LookVector end
+		if UserInputService:IsKeyDown(Enum.KeyCode.A) then move = move - camCF.RightVector end
+		if UserInputService:IsKeyDown(Enum.KeyCode.D) then move = move + camCF.RightVector end
+		if UserInputService:IsKeyDown(Enum.KeyCode.Space) then move = move + Vector3.new(0,1,0) end
+		if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then move = move - Vector3.new(0,1,0) end
+		bv.Velocity = move.Magnitude > 0 and move.Unit * flySpeed or Vector3.new(0,0,0)
+		bg.CFrame = camCF
+	end)
+	print("[Debug] Fly attivato!")
 end
 
 local function stopFly()
-    flying = false
-    if bv then bv:Destroy() end
-    if bg then bg:Destroy() end
-    if flyConnection then flyConnection:Disconnect() end
+	flying = false
+	if bv then bv:Destroy() end
+	if bg then bg:Destroy() end
+	if flyConnection then flyConnection:Disconnect() end
+	print("[Debug] Fly disattivato!")
 end
 
-FlyBtn.MouseButton1Click:Connect(function()
-    if flying then stopFly() else startFly() end
+flyBtn.MouseButton1Click:Connect(function()
+	if flying then stopFly() else startFly() end
 end)
 
--- WalkSpeed
-local SpeedBtn = Instance.new("TextButton", Frame)
-SpeedBtn.Size = UDim2.new(1,-20,0,30)
-SpeedBtn.Position = UDim2.new(0,10,0,80)
-SpeedBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-SpeedBtn.Text = "Set WalkSpeed"
-SpeedBtn.TextColor3 = Color3.fromRGB(255,255,255)
-SpeedBtn.Font = Enum.Font.SourceSans
-SpeedBtn.TextSize = 18
+-- Goto Player dinamico
+local gotoBox = Instance.new("TextBox")
+gotoBox.Size = UDim2.new(0.8,0,0,30)
+gotoBox.Position = UDim2.new(0.1,0,0,190)
+gotoBox.BackgroundColor3 = Color3.fromRGB(80,80,255)
+gotoBox.TextColor3 = Color3.fromRGB(255,255,255)
+gotoBox.Font = Enum.Font.SourceSans
+gotoBox.PlaceholderText = "Scrivi il nome del player"
+gotoBox.ClearTextOnFocus = false
+gotoBox.Parent = frame
 
-local SpeedBox = Instance.new("TextBox", Frame)
-SpeedBox.Size = UDim2.new(1,-20,0,30)
-SpeedBox.Position = UDim2.new(0,10,0,115)
-SpeedBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
-SpeedBox.TextColor3 = Color3.fromRGB(255,255,255)
-SpeedBox.Font = Enum.Font.SourceSans
-SpeedBox.PlaceholderText = "Inserisci WalkSpeed"
-SpeedBox.ClearTextOnFocus = false
-SpeedBox.Visible = false
+local gotoBtn = Instance.new("TextButton")
+gotoBtn.Size = UDim2.new(0.8,0,0,30)
+gotoBtn.Position = UDim2.new(0.1,0,0,225)
+gotoBtn.BackgroundColor3 = gotoColor
+gotoBtn.TextColor3 = Color3.fromRGB(255,255,255)
+gotoBtn.Font = Enum.Font.SourceSansBold
+gotoBtn.TextSize = 18
+gotoBtn.Text = "Goto Player"
+gotoBtn.Parent = frame
 
-SpeedBtn.MouseButton1Click:Connect(function()
-    SpeedBox.Visible = not SpeedBox.Visible
+gotoBtn.MouseButton1Click:Connect(function()
+	local targetName = gotoBox.Text
+	local target = Players:FindFirstChild(targetName)
+	if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+		local hrp = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+		hrp.CFrame = target.Character.HumanoidRootPart.CFrame + Vector3.new(0,3,0)
+		print("[Debug] Teletrasportato da:", targetName)
+	else
+		warn("[Debug] Giocatore non trovato o non ha Character/HumanoidRootPart")
+	end
 end)
 
-SpeedBox.FocusLost:Connect(function(enter)
-    if enter then
-        local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        local val = tonumber(SpeedBox.Text)
-        if humanoid and val then
-            humanoid.WalkSpeed = val
-            print("WalkSpeed impostata a:", val)
-        else
-            warn("Valore WalkSpeed non valido o humanoid non trovato")
-        end
-        SpeedBox.Visible = false
-    end
+-- Toggle GUI con M
+UserInputService.InputBegan:Connect(function(input, gpe)
+	if gpe then return end
+	if input.KeyCode == Enum.KeyCode.M then
+		frame.Visible = not frame.Visible
+		print("[Debug] Pannello visibile:", frame.Visible)
+	end
 end)
 
--- Trail toggle
-local TrailBtn = Instance.new("TextButton", Frame)
-TrailBtn.Size = UDim2.new(1,-20,0,30)
-TrailBtn.Position = UDim2.new(0,10,0,150)
-TrailBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-TrailBtn.Text = "Toggle Trail"
-TrailBtn.TextColor3 = Color3.fromRGB(255,255,255)
-TrailBtn.Font = Enum.Font.SourceSans
-TrailBtn.TextSize = 18
+-- Drag dalla barra titolo
+local dragging = false
+local dragStart = Vector2.new()
+local startPos = Vector2.new()
 
-TrailBtn.MouseButton1Click:Connect(function()
-    createTrailEvent:FireServer()
+titleBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = UserInputService:GetMouseLocation()
+		startPos = Vector2.new(frame.Position.X.Offset, frame.Position.Y.Offset)
+	end
 end)
 
--- Linked Sword toggle con script interno funzionante
-local swordGiven = false
-local SwordBtn = Instance.new("TextButton", Frame)
-SwordBtn.Size = UDim2.new(1,-20,0,30)
-SwordBtn.Position = UDim2.new(0,10,0,190)
-SwordBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-SwordBtn.Text = "Toggle Linked Sword"
-SwordBtn.TextColor3 = Color3.fromRGB(255,255,255)
-SwordBtn.Font = Enum.Font.SourceSans
-SwordBtn.TextSize = 18
-
-SwordBtn.MouseButton1Click:Connect(function()
-    if swordGiven then
-        for _, tool in pairs(LocalPlayer.Backpack:GetChildren()) do
-            if tool:IsA("Tool") and tool.Name == "Linked Sword" then
-                tool:Destroy()
-            end
-        end
-        swordGiven = false
-        print("Linked Sword rimossa!")
-    else
-        local swords = game:GetObjects("rbxassetid://125013769") -- ID spada completa con script
-        for _, sword in pairs(swords) do
-            if sword:IsA("Tool") then
-                sword.Parent = LocalPlayer.Backpack
-                swordGiven = true
-                print("Linked Sword aggiunta con script funzionante!")
-            end
-        end
-    end
+titleBar.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
 end)
 
--- Conferma chiusura
-CloseBtn.MouseButton1Click:Connect(function()
-    local confirmFrame = Instance.new("Frame", ScreenGui)
-    confirmFrame.Size = UDim2.new(0,220,0,120)
-    confirmFrame.Position = UDim2.new(0.5,-110,0.5,-60)
-    confirmFrame.BackgroundColor3 = Color3.fromRGB(40,40,40)
-
-    local confirmTitle = Instance.new("TextLabel", confirmFrame)
-    confirmTitle.Size = UDim2.new(1,0,0,40)
-    confirmTitle.BackgroundColor3 = Color3.fromRGB(70,70,70)
-    confirmTitle.Text = "Conferma Chiusura"
-    confirmTitle.TextColor3 = Color3.fromRGB(255,255,255)
-    confirmTitle.Font = Enum.Font.SourceSansBold
-    confirmTitle.TextSize = 20
-
-    local YesBtn = Instance.new("TextButton", confirmFrame)
-    YesBtn.Size = UDim2.new(0,80,0,40)
-    YesBtn.Position = UDim2.new(0.1,0,0.6,0)
-    YesBtn.BackgroundColor3 = Color3.fromRGB(50,150,50)
-    YesBtn.Text = "Si"
-    YesBtn.TextColor3 = Color3.fromRGB(255,255,255)
-    YesBtn.Font = Enum.Font.SourceSansBold
-    YesBtn.TextSize = 18
-    YesBtn.MouseButton1Click:Connect(function()
-        ScreenGui:Destroy()
-    end)
-
-    local NoBtn = Instance.new("TextButton", confirmFrame)
-    NoBtn.Size = UDim2.new(0,80,0,40)
-    NoBtn.Position = UDim2.new(0.55,0,0.6,0)
-    NoBtn.BackgroundColor3 = Color3.fromRGB(150,50,50)
-    NoBtn.Text = "No"
-    NoBtn.TextColor3 = Color3.fromRGB(255,255,255)
-    NoBtn.Font = Enum.Font.SourceSansBold
-    NoBtn.TextSize = 18
-    NoBtn.MouseButton1Click:Connect(function()
-        confirmFrame:Destroy()
-    end)
-end)
-
--- Toggle frame con 3 linee
-OpenBtn.MouseButton1Click:Connect(function()
-    Frame.Visible = not Frame.Visible
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = UserInputService:GetMouseLocation() - dragStart
+		local newX = math.clamp(startPos.X + delta.X, 0, workspace.CurrentCamera.ViewportSize.X - frame.AbsoluteSize.X)
+		local newY = math.clamp(startPos.Y + delta.Y, 0, workspace.CurrentCamera.ViewportSize.Y - frame.AbsoluteSize.Y)
+		frame.Position = UDim2.new(0, newX, 0, newY)
+	end
 end)
